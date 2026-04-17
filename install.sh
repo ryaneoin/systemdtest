@@ -42,14 +42,14 @@ section "nm2-ingest bootstrap — ENV=${ENV}"
 # ── Check dependencies ────────────────────────────────────────────────────────
 section "Checking dependencies"
 MISSING=()
-for cmd in curl tar unzip envsubst sha256sum; do
+for cmd in curl tar unzip envsubst; do
   if command -v "$cmd" &>/dev/null; then
     info "  found: $cmd"
   else
     MISSING+=("$cmd")
   fi
 done
-[[ ${#MISSING[@]} -gt 0 ]] && error "Missing required commands: ${MISSING[*]}\n  Install with: sudo apt-get install -y curl tar unzip gettext-base coreutils"
+[[ ${#MISSING[@]} -gt 0 ]] && error "Missing required commands: ${MISSING[*]}\n  RHEL/CentOS: sudo dnf install -y curl tar unzip gettext\n  Debian/Ubuntu: sudo apt-get install -y curl tar unzip gettext-base"
 
 # ── Load config ───────────────────────────────────────────────────────────────
 section "Loading configuration"
