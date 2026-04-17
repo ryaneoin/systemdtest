@@ -1,0 +1,15 @@
+# ── nm2-ingest.target ─────────────────────────────────────────────────────────
+# Umbrella target for all nm2-ingest services.
+# Platform team: cp this to /etc/systemd/system/ then:
+#   systemctl daemon-reload
+#   systemctl enable --now nm2-ingest.target
+
+[Unit]
+Description=NM2 Ingest Stack
+Documentation=https://github.com/ryaneoin/nm2-ingest
+After=network-online.target
+Wants=network-online.target
+Wants=nm2-vmagent.service nm2-telegraf.service nm2-prometheus.service nm2-loki.service
+
+[Install]
+WantedBy=multi-user.target

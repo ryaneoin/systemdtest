@@ -1,0 +1,35 @@
+# ── nm2-prometheus.service ────────────────────────────────────────────────────
+# Generated from nm2-prometheus.service.tmpl by install.sh
+# Prometheus: local metrics storage and query endpoint.
+
+[Unit]
+Description=NM2 Prometheus metrics store
+Documentation=https://prometheus.io/docs/
+After=network-online.target
+Wants=network-online.target
+PartOf=nm2-ingest.target
+
+[Service]
+Type=simple
+User=${NM2_USER}
+Group=${NM2_USER}
+WorkingDirectory=/home/nm2
+
+ExecStart=/home/nm2/prometheus/run.sh
+
+# Allow clean reload via HTTP /-/reload (requires --web.enable-lifecycle)
+ExecReload=/bin/kill -HUP $MAINPID
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+LimitNOFILE=65536
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nm2-prometheus
+
+[Install]
+WantedBy=nm2-ingest.target

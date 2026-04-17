@@ -1,0 +1,44 @@
+# ── Loki configuration ────────────────────────────────────────────────────────
+# Generated from config.yaml.tmpl by install.sh — edit the template, not this file.
+
+auth_enabled: false
+
+server:
+  http_listen_port: ${LOKI_HTTP_LISTEN_PORT}
+  grpc_listen_port: ${LOKI_GRPC_LISTEN_PORT}
+  log_level: ${LOKI_LOG_LEVEL}
+
+common:
+  path_prefix: ${LOKI_STORAGE_PATH}
+  storage:
+    filesystem:
+      chunks_directory: ${LOKI_STORAGE_PATH}/chunks
+      rules_directory:  ${LOKI_STORAGE_PATH}/rules
+  replication_factor: 1
+  ring:
+    instance_addr: 127.0.0.1
+    kvstore:
+      store: inmemory
+
+schema_config:
+  configs:
+    - from: 2024-01-01
+      store: tsdb
+      object_store: filesystem
+      schema: v13
+      index:
+        prefix: index_
+        period: 24h
+
+limits_config:
+  retention_period: ${LOKI_RETENTION_PERIOD}
+  ingestion_rate_mb: 32
+  ingestion_burst_size_mb: 64
+
+compactor:
+  working_directory: ${LOKI_STORAGE_PATH}/compactor
+  retention_enabled: true
+  retention_delete_delay: 2h
+
+analytics:
+  reporting_enabled: false

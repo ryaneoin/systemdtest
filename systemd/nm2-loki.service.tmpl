@@ -1,0 +1,32 @@
+# ── nm2-loki.service ──────────────────────────────────────────────────────────
+# Generated from nm2-loki.service.tmpl by install.sh
+# Loki: log aggregation, receives from Telegraf, queryable via Grafana.
+
+[Unit]
+Description=NM2 Loki log aggregation
+Documentation=https://grafana.com/docs/loki/
+After=network-online.target
+Wants=network-online.target
+PartOf=nm2-ingest.target
+
+[Service]
+Type=simple
+User=${NM2_USER}
+Group=${NM2_USER}
+WorkingDirectory=/home/nm2
+
+ExecStart=/home/nm2/loki/run.sh
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+LimitNOFILE=65536
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nm2-loki
+
+[Install]
+WantedBy=nm2-ingest.target

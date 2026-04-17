@@ -1,0 +1,33 @@
+# ── nm2-telegraf.service ──────────────────────────────────────────────────────
+# Generated from nm2-telegraf.service.tmpl by install.sh
+# Telegraf: collects host metrics and logs; ships to vmagent (metrics) and Loki (logs).
+
+[Unit]
+Description=NM2 Telegraf metrics and log collector
+Documentation=https://docs.influxdata.com/telegraf/
+After=network-online.target nm2-vmagent.service nm2-loki.service
+Wants=network-online.target
+PartOf=nm2-ingest.target
+
+[Service]
+Type=simple
+User=${NM2_USER}
+Group=${NM2_USER}
+WorkingDirectory=/home/nm2
+
+ExecStart=/home/nm2/bin/telegraf \
+  --config-directory /home/nm2/telegraf/conf.d
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+LimitNOFILE=65536
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nm2-telegraf
+
+[Install]
+WantedBy=nm2-ingest.target

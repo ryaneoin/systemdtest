@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# ── Prometheus run script ─────────────────────────────────────────────────────
+# Generated from run.sh.tmpl by install.sh — edit the template, not this file.
+# Prometheus provides local metrics storage and a query endpoint for dashboards.
+
+exec /home/nm2/bin/prometheus \
+  --web.listen-address=${PROMETHEUS_LISTEN_ADDR} \
+  --storage.tsdb.path=${PROMETHEUS_TSDB_PATH} \
+  --storage.tsdb.retention.time=${PROMETHEUS_RETENTION_TIME} \
+  --web.enable-lifecycle \
+  --web.enable-admin-api \
+  --log.level=${PROMETHEUS_LOG_LEVEL} \
+  --log.format=json

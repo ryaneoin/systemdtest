@@ -1,0 +1,39 @@
+# ── vmagent scrape config ─────────────────────────────────────────────────────
+# Generated from scrape.yaml.tmpl by install.sh — edit the template, not this file.
+# Scrapes the /metrics endpoints of local services on the nm2-ingest host.
+
+global:
+  scrape_interval: 30s
+  scrape_timeout:  10s
+  external_labels:
+    host: "${TELEGRAF_HOSTNAME}"
+    env:  "${NM2_ENV}"
+
+scrape_configs:
+
+  - job_name: nm2-vmagent
+    static_configs:
+      - targets: ["127.0.0.1:8429"]
+        labels:
+          service: vmagent
+
+  - job_name: nm2-prometheus
+    static_configs:
+      - targets: ["127.0.0.1:9090"]
+        labels:
+          service: prometheus
+    metrics_path: /metrics
+
+  - job_name: nm2-loki
+    static_configs:
+      - targets: ["127.0.0.1:3100"]
+        labels:
+          service: loki
+    metrics_path: /metrics
+
+  - job_name: nm2-telegraf
+    static_configs:
+      - targets: ["127.0.0.1:9273"]
+        labels:
+          service: telegraf
+    metrics_path: /metrics

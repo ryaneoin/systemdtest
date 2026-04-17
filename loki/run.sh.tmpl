@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# ── Loki run script ───────────────────────────────────────────────────────────
+# Generated from run.sh.tmpl by install.sh — edit the template, not this file.
+
+exec /home/nm2/bin/loki \
+  -target=all \
+  -config.file=/home/nm2/loki/config.yaml \
+  -config.expand-env=true \
+  -log.level=${LOKI_LOG_LEVEL} \
+  -log.format=json

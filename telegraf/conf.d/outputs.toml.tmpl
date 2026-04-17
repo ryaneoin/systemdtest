@@ -1,0 +1,28 @@
+# ── Telegraf outputs ──────────────────────────────────────────────────────────
+# Generated from outputs.toml.tmpl by install.sh — edit the template, not this file.
+#
+# Metrics flow:  Telegraf → vmagent (local:8429) → Azure Central + Azure East
+# Log flow:      Telegraf → Loki    (local:3100)
+
+# ── Metrics → vmagent (Prometheus remote_write) ───────────────────────────────
+[[outputs.http]]
+  url             = "${TELEGRAF_REMOTE_WRITE_URL}"
+  data_format     = "prometheusremotewrite"
+  method          = "POST"
+  timeout         = "10s"
+  use_batch_format = true
+
+  [outputs.http.headers]
+    Content-Type = "application/x-protobuf"
+    Content-Encoding = "snappy"
+    X-Prometheus-Remote-Write-Version = "0.1.0"
+
+# ── Logs → Loki ───────────────────────────────────────────────────────────────
+[[outputs.loki]]
+  domain    = "${TELEGRAF_LOKI_URL}"
+  timeout   = "5s"
+
+  [outputs.loki.labels]
+    host   = "${TELEGRAF_HOSTNAME}"
+    env    = "${NM2_ENV}"
+    source = "telegraf"

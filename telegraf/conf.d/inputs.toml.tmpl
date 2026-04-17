@@ -1,0 +1,45 @@
+# ── Telegraf inputs ───────────────────────────────────────────────────────────
+# Generated from inputs.toml.tmpl by install.sh — edit the template, not this file.
+# Collects host-level metrics for the nm2-ingest VM.
+
+# ── CPU ───────────────────────────────────────────────────────────────────────
+[[inputs.cpu]]
+  percpu           = true
+  totalcpu         = true
+  collect_cpu_time = false
+  report_active    = false
+  core_tags        = false
+
+# ── Memory ────────────────────────────────────────────────────────────────────
+[[inputs.mem]]
+
+# ── Disk usage ────────────────────────────────────────────────────────────────
+[[inputs.disk]]
+  ignore_fs = ["tmpfs", "devtmpfs", "devfs", "iso9660", "overlay", "aufs", "squashfs"]
+
+# ── Disk I/O ──────────────────────────────────────────────────────────────────
+[[inputs.diskio]]
+
+# ── Network ───────────────────────────────────────────────────────────────────
+[[inputs.net]]
+  ignore_protocol_stats = true
+
+# ── System load / uptime ──────────────────────────────────────────────────────
+[[inputs.system]]
+
+# ── Processes ─────────────────────────────────────────────────────────────────
+[[inputs.processes]]
+
+# ── Telegraf internal self-monitoring ─────────────────────────────────────────
+[[inputs.internal]]
+  collect_memstats = true
+
+# ── Systemd unit health (watches the four nm2 services) ───────────────────────
+[[inputs.systemd_units]]
+  unit_filter = ["nm2-telegraf.service", "nm2-vmagent.service", "nm2-prometheus.service", "nm2-loki.service"]
+
+# ── Syslog (reads from journal, ships to Loki via outputs.toml) ───────────────
+[[inputs.journald]]
+  [inputs.journald.tags]
+    host = "${TELEGRAF_HOSTNAME}"
+    env  = "${NM2_ENV}"

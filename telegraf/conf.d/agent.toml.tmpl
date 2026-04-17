@@ -1,0 +1,19 @@
+# ── Telegraf agent ────────────────────────────────────────────────────────────
+# Generated from agent.toml.tmpl by install.sh — edit the template, not this file.
+
+[agent]
+  hostname         = "${TELEGRAF_HOSTNAME}"
+  interval         = "${TELEGRAF_AGENT_INTERVAL}"
+  flush_interval   = "${TELEGRAF_AGENT_FLUSH_INTERVAL}"
+  metric_batch_size   = ${TELEGRAF_AGENT_METRIC_BATCH}
+  metric_buffer_limit = ${TELEGRAF_AGENT_METRIC_BUFFER}
+  round_interval   = true
+  collection_jitter = "2s"
+  flush_jitter     = "5s"
+  precision        = ""
+  omit_hostname    = false
+  debug            = false
+  quiet            = false
+  logfile          = "/home/nm2/logs/telegraf.log"
+  logfile_rotation_max_size    = "50mb"
+  logfile_rotation_max_archives = 3

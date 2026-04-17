@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# ── vmagent run script ────────────────────────────────────────────────────────
+# Generated from run.sh.tmpl by install.sh — edit the template, not this file.
+# vmagent-prod receives Prometheus remote_write and duplicates to both Azure regions.
+
+exec /home/nm2/bin/vmagent-prod \
+  -httpListenAddr=${VMAGENT_HTTP_LISTEN_ADDR} \
+  -remoteWrite.url=${VMAGENT_REMOTE_WRITE_URL_1} \
+  -remoteWrite.url=${VMAGENT_REMOTE_WRITE_URL_2} \
+  -remoteWrite.tmpDataPath=${VMAGENT_CACHE_PATH} \
+  -remoteWrite.maxDiskUsagePerURL=${VMAGENT_MAX_DISK_PER_URL} \
+  -memory.allowedPercent=${VMAGENT_MEMORY_PERCENT} \
+  -promscrape.config=/home/nm2/vmagent/scrape.yaml \
+  -promscrape.suppressDuplicateScrapeTargetErrors \
+  -loggerLevel=${VMAGENT_LOG_LEVEL} \
+  -loggerOutput=stdout

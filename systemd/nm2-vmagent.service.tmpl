@@ -1,0 +1,34 @@
+# ── nm2-vmagent.service ───────────────────────────────────────────────────────
+# Generated from nm2-vmagent.service.tmpl by install.sh
+# vmagent-prod: receives remote_write, duplicates to Azure Central + Azure East.
+
+[Unit]
+Description=NM2 vmagent (VictoriaMetrics remote-write fan-out)
+Documentation=https://docs.victoriametrics.com/vmagent/
+After=network-online.target
+Wants=network-online.target
+PartOf=nm2-ingest.target
+
+[Service]
+Type=simple
+User=${NM2_USER}
+Group=${NM2_USER}
+WorkingDirectory=/home/nm2
+
+ExecStart=/home/nm2/vmagent/run.sh
+
+Restart=on-failure
+RestartSec=5s
+StartLimitIntervalSec=60s
+StartLimitBurst=5
+
+# Resource limits
+LimitNOFILE=65536
+
+# Logging — journald picks this up
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=nm2-vmagent
+
+[Install]
+WantedBy=nm2-ingest.target
