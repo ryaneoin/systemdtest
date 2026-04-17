@@ -65,25 +65,18 @@
     env    = "${NM2_ENV}"
     source = "netflow"
 
-# ── Syslog UDP ────────────────────────────────────────────────────────────────
-# UDP ${TELEGRAF_PORT_SYSLOG_UDP} — RFC 5424 syslog, best-effort delivery.
-[[inputs.syslog]]
-  server      = "udp://:${TELEGRAF_PORT_SYSLOG_UDP}"
-  best_effort = true
-  [inputs.syslog.tags]
-    env      = "${NM2_ENV}"
-    source   = "syslog"
-    protocol = "udp"
-
-# ── Syslog TCP ────────────────────────────────────────────────────────────────
-# TCP ${TELEGRAF_PORT_SYSLOG_TCP} — RFC 5424 syslog, reliable delivery.
-[[inputs.syslog]]
-  server      = "tcp://:${TELEGRAF_PORT_SYSLOG_TCP}"
-  best_effort = true
-  [inputs.syslog.tags]
-    env      = "${NM2_ENV}"
-    source   = "syslog"
-    protocol = "tcp"
+# ── Syslog (raw UDP stream) ───────────────────────────────────────────────────
+# UDP ${TELEGRAF_PORT_SYSLOG} — raw UDP socket listener; proven to work where
+# inputs.syslog framing causes issues. Captures each datagram as a string.
+[[inputs.socket_listener]]
+  service_address  = "udp://:${TELEGRAF_PORT_SYSLOG}"
+  name_override    = "syslog"
+  data_format      = "value"
+  data_type        = "string"
+  read_buffer_size = "64KiB"
+  [inputs.socket_listener.tags]
+    env    = "${NM2_ENV}"
+    source = "syslog"
 
 # ── SNMP Trap ─────────────────────────────────────────────────────────────────
 # UDP ${TELEGRAF_PORT_SNMP_TRAP} — receives SNMPv1, v2c, and v3 traps.
