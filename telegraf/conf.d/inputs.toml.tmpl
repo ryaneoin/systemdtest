@@ -1,6 +1,13 @@
 # ── Telegraf inputs ───────────────────────────────────────────────────────────
 # Generated from inputs.toml.tmpl by install.sh — edit the template, not this file.
-# Collects host-level metrics for the nm2-ingest VM.
+#
+# Section 1: Host observability  — metrics about the nm2-ingest VM itself
+# Section 2: Telemetry ingestion — the network data this host exists to receive
+#             Ports driven by TELEGRAF_PORT_* vars in config/env/<ENV>.env
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 1 — Host observability
+# ══════════════════════════════════════════════════════════════════════════════
 
 # ── CPU ───────────────────────────────────────────────────────────────────────
 [[inputs.cpu]]
@@ -34,12 +41,64 @@
 [[inputs.internal]]
   collect_memstats = true
 
-# ── Systemd unit health (watches the four nm2 services) ───────────────────────
+# ── Systemd unit health ────────────────────────────────────────────────────────
 [[inputs.systemd_units]]
   unit_filter = ["nm2-telegraf.service", "nm2-vmagent.service", "nm2-prometheus.service", "nm2-loki.service"]
 
-# ── Syslog (reads from journal, ships to Loki via outputs.toml) ───────────────
+# ── Journal logs (ships to Loki via outputs.toml) ─────────────────────────────
 [[inputs.journald]]
   [inputs.journald.tags]
     host = "${TELEGRAF_HOSTNAME}"
     env  = "${NM2_ENV}"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SECTION 2 — Telemetry ingestion
+# Ports: see TELEGRAF_PORT_* in config/env/<ENV>.env  (FW range 9000-9020)
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── IPFIX / NetFlow v9 v10 ────────────────────────────────────────────────────
+# UDP ${TELEGRAF_PORT_IPFIX} — accepts IPFIX (v10) and NetFlow v9 from network devices.
+[[inputs.netflow]]
+  service_address = "udp://:${TELEGRAF_PORT_IPFIX}"
+  [inputs.netflow.tags]
+    env    = "${NM2_ENV}"
+    source = "netflow"
+
+# ── Syslog UDP ────────────────────────────────────────────────────────────────
+# UDP ${TELEGRAF_PORT_SYSLOG_UDP} — RFC 5424 syslog, best-effort delivery.
+[[inputs.syslog]]
+  server      = "udp://:${TELEGRAF_PORT_SYSLOG_UDP}"
+  best_effort = true
+  [inputs.syslog.tags]
+    env      = "${NM2_ENV}"
+    source   = "syslog"
+    protocol = "udp"
+
+# ── Syslog TCP ────────────────────────────────────────────────────────────────
+# TCP ${TELEGRAF_PORT_SYSLOG_TCP} — RFC 5424 syslog, reliable delivery.
+[[inputs.syslog]]
+  server      = "tcp://:${TELEGRAF_PORT_SYSLOG_TCP}"
+  best_effort = true
+  [inputs.syslog.tags]
+    env      = "${NM2_ENV}"
+    source   = "syslog"
+    protocol = "tcp"
+
+# ── SNMP Trap ─────────────────────────────────────────────────────────────────
+# UDP ${TELEGRAF_PORT_SNMP_TRAP} — receives SNMPv1, v2c, and v3 traps.
+# Add community strings / v3 auth config below once known.
+[[inputs.snmp_trap]]
+  service_address = "udp://:${TELEGRAF_PORT_SNMP_TRAP}"
+  [inputs.snmp_trap.tags]
+    env    = "${NM2_ENV}"
+    source = "snmp_trap"
+
+# ── Cisco MDT — gRPC dial-out ─────────────────────────────────────────────────
+# TCP ${TELEGRAF_PORT_MDT} — IOS-XR and IOS-XE gRPC dial-out (native + kvgpb encoding).
+[[inputs.cisco_telemetry_mdt]]
+  transport       = "grpc"
+  service_address = ":${TELEGRAF_PORT_MDT}"
+  [inputs.cisco_telemetry_mdt.tags]
+    env    = "${NM2_ENV}"
+    source = "mdt"
